@@ -14,11 +14,25 @@ export const wagmiModule: NuxtModule<WagmiModuleOptions> =
       },
     },
     setup(_options, nuxt) {
+
+
+      // add packages to transpile target for alias resolution
+      nuxt.options.build = (nuxt.options.build || {}) as any
+      nuxt.options.build.transpile = nuxt.options.build.transpile || []
+      nuxt.options.build.transpile.push(packageName)
+        
       const { resolve } = createResolver(import.meta.url)
 
       // Add types
       nuxt.hook('prepare:types', ({ references }) => {
         references.push({ types: '@wagmi/vue/nuxt' })
+      })
+
+      // transpile 
+      nuxt.hook('vite:extendConfig', (config) => {
+        config.optimizeDeps ??= {}
+        config.optimizeDeps.include = config.optimizeDeps.include || []
+        config.optimizeDeps.include.push('@wagmi/vue')
       })
 
       // Add auto imports
